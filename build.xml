@@ -1,0 +1,94 @@
+<project name="restdebugger" default="compile" basedir=".">
+    <description>
+        The REST Debugger is a REST front-end for GDB, PDB, etc.
+    </description>
+
+    <property name="src" location="src/" />
+    <property name="lib" location="lib/" />
+    <property name="extern" location="extern/" /> <!-- This folder is for JUnit, etc. for tests -->
+    <property name="test" location="test/" />
+    <property name="build" location="build/" />
+    <property name="dist" location="dist/" />
+    <property name="reports" location="reports/" />
+    <property name="reports.test" location="reports/test" />
+    <property name="reports.javadoc" location="reports/javadoc" />
+
+    <path id="classpath.base">
+        <fileset dir="${lib}">
+            <include name="**/*.jar" />
+        </fileset>
+        <pathelement location="${build}" />
+        <pathelement location="${src}" />
+    </path>
+
+    <path id="classpath.test">
+        <fileset dir="${extern}">
+            <include name="**/*.jar" />
+        </fileset>
+        <pathelement location="${test}" />
+        <path refid="classpath.base" />
+    </path>
+
+    <target name="init" description="sets up the structure for building">
+        <mkdir dir="${build}" />
+        <mkdir dir="${dist}" />
+        <mkdir dir="${reports}" />
+        <mkdir dir="${reports.test}" />
+        <mkdir dir="${reports.javadoc}" />
+    </target>
+
+    <target name="compile" depends="init" description="compiles the main source files">
+        <javac srcdir="${src}" destdir="${build}" debug="on">
+            <classpath refid="classpath.base" />
+            <compilerarg value="-Xlint:all" />
+        </javac>
+    </target>
+
+    <target name="jar" depends="clean,init,compile" description="creates a jar of the project.">
+        <jar destfile="${dist}/daemon.jar">
+            <fileset dir="${src}" includes="**/*.java" />
+            <fileset dir="${build}" includes="**/*.class" />
+            <zipgroupfileset dir="${lib}" includes="**/*.jar" />
+            <manifest>
+                <attribute name="Main-Class" value="capstone.daemon.Daemon" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="compile-tests" depends="init,compile" description="Compiles the test source files.">
+        <javac srcdir="${test}" destdir="${build}" debug="on">
+            <classpath refid="classpath.test" />
+        </javac>
+    </target>
+
+    <target name="run-tests" depends="compile-tests" description="Runs the tests, fails if any test fails.">
+        <junit printsummary="yes" fork="yes" failureProperty="test.failure">
+            <classpath refid="classpath.test" />
+            <formatter type="plain" />
+            <batchtest todir="${reports}">
+                <fileset dir="${test}">
+                    <include name="**/*Test.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+        <fail message="Test failed." if="test.failure" />
+    </target>
+
+
+    <target name="javadoc" depends="init" description="Generates the documentation.">
+        <javadoc destdir="${reports.javadoc}" classpathref="classpath.base">
+            <fileset dir="${src}">
+                <include name="**/*.java" />
+            </fileset>
+        </javadoc>
+    </target>
+
+    <target name="clean" description="Removes all created files and directories.">
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+        <delete dir="${instrumented}" />
+        <delete dir="data" />
+        <delete file="cobertura.ser" />
+    </target>
+
+</project>
