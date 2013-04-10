@@ -23,3 +23,9 @@ public interface Wrapper
     public int getLineNumber();
 }
 
+// TODO the run debugger functionality which takes a Wrapper and launches the timer,
+// handles the receive commands, etc. This should be a static function of Wrapper.
+
+// TODO enum of all the debugger commands.
+// see: http://docs.oracle.com/javase/tutorial/java/javaOO/enum.html
+
