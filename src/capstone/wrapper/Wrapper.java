@@ -3,29 +3,31 @@ package capstone.wrapper;
 import capstone.util.*;
 import java.util.*;
 
-public interface Wrapper
+public abstract class Wrapper
 {
-    public List<ProgramError> prepare(String programText);
-    public void killDebugger();
-    public void runProgram();
+    public abstract List<ProgramError> prepare(String programText);
+    public abstract void killDebugger();
+    public abstract void runProgram();
 
-    public String getStdOut();
-    public void provideInput(String input);
-    public StackFrame getLocalValues();
-    public List<StackFrame> getStack();
-    public String evaluateExpression(String expression);
+    public abstract String getStdOut();
+    public abstract void provideInput(String input);
+    public abstract StackFrame getLocalValues();
+    public abstract List<StackFrame> getStack();
+    public abstract String evaluateExpression(String expression);
 
-    public void stepIn();
-    public void stepOut();
-    public void stepOver();
+    public abstract void stepIn();
+    public abstract void stepOut();
+    public abstract void stepOver();
 
-    public void addBreakpoint(int lineNumber);
-    public int getLineNumber();
+    public abstract void addBreakpoint(int lineNumber);
+    public abstract int getLineNumber();
+
+    static void runWrapper(Wrapper wrapper)
+    {
+
+    }
 }
 
 // TODO the run debugger functionality which takes a Wrapper and launches the timer,
 // handles the receive commands, etc. This should be a static function of Wrapper.
-
-// TODO enum of all the debugger commands.
-// see: http://docs.oracle.com/javase/tutorial/java/javaOO/enum.html
 
