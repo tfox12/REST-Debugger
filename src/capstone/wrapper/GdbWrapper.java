@@ -68,6 +68,7 @@ public class GdbWrapper
     }
 
     public String getStdOut()
+    throws IOException
     {
         if (fromProgram.available() == 0)
         {
@@ -75,7 +76,7 @@ public class GdbWrapper
         }
         else
         {
-            String output;
+            String output = "";
             // TODO read it
             return output;
         }
