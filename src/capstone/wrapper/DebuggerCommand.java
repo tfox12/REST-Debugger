@@ -2,7 +2,7 @@ package capstone.wrapper;
 
 public enum DebuggerCommand
 {
-    PREPARE('p')
+    PREPARE('p', true)
   , RUN('r')
   , STEPIN('z')
   , STEPOUT('w')
@@ -10,18 +10,27 @@ public enum DebuggerCommand
   , GETVALUES('V')
   , GETSTDOUT('o')
   , GETSTDERR('e')
-  , GIVEINPUT('i')
-  , ADDBREAKPOINT('b')
+  , GIVEINPUT('i', true)
+  , ADDBREAKPOINT('b', true)
   , GETLINENUMBER('L')
   , KILLDEBUGGER('k')
   , UNKNOWN('u')
   ;
 
     private char commandCharacter;
+    private boolean hasData;
+    private String data;
 
     DebuggerCommand(char c)
     {
         this.commandCharacter = c;
+        this.hasData = false;
+    }
+
+    DebuggerCommand(char c, boolean hasData)
+    {
+        this.commandCharacter = c;
+        this.hasData = hasData;
     }
 
     public char getChar()
@@ -37,6 +46,16 @@ public enum DebuggerCommand
                 return cmd;
         }
         return UNKNOWN;
+    }
+
+    public String getData()
+    {
+        return data;
+    }
+
+    public void setData(String data)
+    {
+        this.data = data;
     }
 }
 

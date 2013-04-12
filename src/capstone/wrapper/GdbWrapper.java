@@ -21,7 +21,11 @@ public class GdbWrapper
     private PrintStream toProgram;
     private BufferedInputStream fromProgram;
 
-    // TODO prepare
+    void prepare(String programText)
+    {
+        
+    }
+
     // TODO kill debugger
     // TODO run program
 

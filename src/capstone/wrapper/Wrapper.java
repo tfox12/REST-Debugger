@@ -2,9 +2,12 @@ package capstone.wrapper;
 
 import capstone.util.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 public abstract class Wrapper
 {
+    private LinkedBlockingQueue<DebuggerCommand> commandQueue;
+
     public abstract List<ProgramError> prepare(String programText);
     public abstract void killDebugger();
     public abstract void runProgram();
@@ -22,9 +25,16 @@ public abstract class Wrapper
     public abstract void addBreakpoint(int lineNumber);
     public abstract int getLineNumber();
 
-    static void runWrapper(Wrapper wrapper)
+    public void submitCommand(DebuggerCommand command)
+    throws InterruptedException
     {
+        commandQueue.put(command);
+    }
 
+    // TODO change to run
+    void runWrapper(Wrapper wrapper)
+    {
+        
     }
 }
 
