@@ -2,6 +2,7 @@ package capstone.wrapper;
 
 import capstone.util.*;
 import java.util.*;
+import java.lang.*;
 import java.io.*;
 
 public class GdbWrapper
@@ -15,10 +16,10 @@ public class GdbWrapper
     private String programBinaryFilename;
 
     private Process debuggerProcess;
-    private OutputStream toGdb;
-    private InputStream fromGdb;
-    private OutputStream toProgram;
-    private InputStream fromProgram;
+    private PrintStream toGdb;
+    private BufferedInputStream fromGdb;
+    private PrintStream toProgram;
+    private BufferedInputStream fromProgram;
 
     // TODO prepare
     // TODO kill debugger
@@ -28,12 +29,11 @@ public class GdbWrapper
     throws IOException
     {
         String command = "gdb -q " + binaryFilename;
-        // TODO change to process builder so we can merge stdout, stderr
-        // see: http://docs.oracle.com/javase/6/docs/api/java/lang/ProcessBuilder.html
-        debuggerProcess = Runtime.getRuntime().exec(command);
-        fromGdb = debuggerProcess.getInputStream(); // TODO buffer this
-        toGdb = debuggerProcess.getOutputStream(); // TODO Buffer this
-        // TODO merge stdout, stderr
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectErrorStream(true); // merges stdout, stderr
+        debuggerProcess = builder.start();
+        fromGdb = new BufferedInputStream(debuggerProcess.getInputStream());
+        toGdb = new PrintStream(debuggerProcess.getOutputStream());
     }
 
     private void write(String command)
