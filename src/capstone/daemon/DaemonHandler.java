@@ -1,22 +1,24 @@
 package capstone.daemon;
 
-import org.jboss.netty.channel.*;
+import io.netty.channel.*;
+import io.netty.handler.codec.http.*;
 
-public class DaemonHandler extends SimpleChannelUpstreamHandler
+public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<HttpRequest>
 {
     @Override
     public void messageReceived(
                       ChannelHandlerContext ctx
-                    , MessageEvent e)
+                    , HttpRequest request)
     {
+        System.out.println(request);
     }
 
     @Override
     public void exceptionCaught(
                       ChannelHandlerContext ctx
-                    , ExceptionEvent e)
+                    , Throwable cause)
     {
-        e.getCause().printStackTrace();
-        e.getChannel().close();
+        cause.printStackTrace();
+        ctx.close();
     }
 }
