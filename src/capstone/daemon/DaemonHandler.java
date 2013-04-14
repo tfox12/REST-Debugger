@@ -59,7 +59,7 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
         }
         catch(Exception e) 
         {
-            System.err.println("we are not in buisness");
+            e.printStackTrace();
         }
     }
 
