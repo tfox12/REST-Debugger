@@ -2,7 +2,6 @@ package capstone.wrapper;
 
 import capstone.util.*;
 import java.util.*;
-import java.lang.*;
 import java.io.*;
 
 public class GdbWrapper extends Wrapper
