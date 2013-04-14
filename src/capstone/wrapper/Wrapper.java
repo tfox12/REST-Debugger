@@ -5,7 +5,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.io.*;
 
-public abstract class Wrapper
+public abstract class Wrapper extends Thread
 {
     private Object commandLock;
     private DebuggerCommand command;
@@ -57,10 +57,25 @@ public abstract class Wrapper
         return waiting;
     }
 
-    // TODO change to run
-    void runWrapper(Wrapper wrapper)
+    private DebuggerCommand getCommand()
     {
-        
+        synchronized (commandLock)
+        {
+            return command;
+        }
+    }
+
+    private void clearCommand()
+    {
+        synchronized (commandLock)
+        {
+            command = null;
+        }
+    }
+
+    void run(Wrapper wrapper)
+    {
+        //
     }
 }
 
