@@ -30,7 +30,7 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             // TODO add session tokens
             // TODO add specifier of C++ vs Python
 
-            String userId = args.get("userid");
+            String userId = args.get("usrid");
             String debuggerId = args.get("dbgid");
             String wrapperKey = userId + "_" + debuggerId;
 
