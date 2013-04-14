@@ -83,7 +83,6 @@ public abstract class Wrapper extends Thread
     @Override
     public void run()
     {
-
         activeLoop: while (active)
         {
             synchronized (requestLock)

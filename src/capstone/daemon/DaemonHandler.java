@@ -45,6 +45,7 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             if (wrapper == null)
             {
                 wrapper = new GdbWrapper(Integer.parseInt(userId), Integer.parseInt(debuggerId));
+                wrapper.start();
                 wrapperMap.put(wrapperKey, wrapper);
             }
 
