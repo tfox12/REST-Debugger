@@ -41,7 +41,7 @@ public abstract class Wrapper extends Thread
     {
         synchronized (requestLock)
         {
-            if (request == null)
+            if (request != null)
             {
                 this.request = request;
                 System.out.println("[gdb] Notifying to wake up the wrapper!");
