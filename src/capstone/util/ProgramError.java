@@ -10,5 +10,11 @@ public class ProgramError
         this.lineNumber = lineNumber;
         this.errorText = errorText;
     }
+
+    @Override
+    public String toString()
+    {
+        return "[" + lineNumber + ", " + errorText + "]";
+    }
 }
 

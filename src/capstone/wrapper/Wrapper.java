@@ -20,6 +20,7 @@ public abstract class Wrapper extends Thread
 
     public abstract List<ProgramError> prepare(String programText) throws IOException, InterruptedException;
     public abstract void killDebugger();
+    //public abstract void cleanup(); // TODO require a cleanup method
     public abstract void runProgram() throws IOException;
 
     public abstract String getStdOut() throws IOException;
@@ -169,8 +170,6 @@ public abstract class Wrapper extends Thread
                             break;
 
                         case UNKNOWN:
-                            active = false;
-                            killDebugger();
                             break;
                     }
                 }
