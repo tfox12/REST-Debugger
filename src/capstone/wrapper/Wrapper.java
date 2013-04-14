@@ -44,7 +44,9 @@ public abstract class Wrapper extends Thread
             if (request == null)
             {
                 this.request = request;
+                System.out.println("[gdb] Notifying to wake up the wrapper!");
                 requestLock.notify();
+                System.out.println("[gdb] Notified to wake up the wrapper!");
                 return true;
             }
             else
@@ -66,7 +68,9 @@ public abstract class Wrapper extends Thread
     {
         synchronized (requestLock)
         {
+            System.out.println("[gdb] Notifying the daemon!");
             request.monitor.notifyAll();
+            System.out.println("[gdb] Notified the daemon!");
             request = null;
         }
     }
@@ -112,8 +116,10 @@ public abstract class Wrapper extends Thread
                     switch (request.command)
                     {
                         case PREPARE:
+                            System.out.println("[gdb] Handling a prepare command!");
                             List<ProgramError> errors = prepare(request.data);
                             request.result = errors.toString(); // FIXME use JSON
+                            System.out.println("[gdb] Results: " + request.result);
                             break;
 
                         case RUN:
