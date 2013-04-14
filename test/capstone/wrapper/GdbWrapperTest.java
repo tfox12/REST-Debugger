@@ -89,7 +89,7 @@ public class GdbWrapperTest
     public void test()
     throws Exception
     {
-        GdbWrapper wrapper = new GdbWrapper(1342, 0);
+        Wrapper wrapper = new GdbWrapper(1342, 0);
         wrapper.prepare(helloWorldProgram);
         assertEquals("incorrect line number", 6, wrapper.getLineNumber());
         wrapper.runProgram();
