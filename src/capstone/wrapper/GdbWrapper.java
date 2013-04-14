@@ -29,7 +29,7 @@ public class GdbWrapper
     private PrintStream toProgram;
     private BufferedInputStream fromProgram;
 
-    List<ProgramError> prepare(String programText)
+    public List<ProgramError> prepare(String programText)
     throws IOException, InterruptedException
     {
         FileWriter fileOut = new FileWriter(programTextFilename);
@@ -63,7 +63,8 @@ public class GdbWrapper
         String startCommand = "start 0 > " + toProgramFilename + " 1 > " + fromProgramFilename + " 2 > " + fromProgramFilename;
         System.out.println(startCommand);
         toGdb.println(startCommand);
-        //readUntilPrompt();
+        toGdb.flush();
+        readUntilPrompt();
         // TODO open those files as stuffs
 
         return new ArrayList<ProgramError>();
@@ -76,12 +77,13 @@ public class GdbWrapper
     {
         String command = "c";
         toGdb.println(command);
+        toGdb.flush();
 
-        //String output = readUntilPrompt();
-        while (fromGdb.hasNextByte())
+        String output = readUntilPrompt();
+        /*while (fromGdb.hasNextByte())
         {
             System.out.println("LINE: " + fromGdb.nextLine());
-        }
+        }*/
         //System.out.println("Run program output: " + output);
     }
 
@@ -97,9 +99,9 @@ public class GdbWrapper
         }
         else
         {
-            String output = "";
             byte[] bytes = new byte[numAvailable];
             fromProgram.read(bytes, 0, numAvailable);
+            String output = new String(bytes);
             return output;
         }
     }
@@ -113,7 +115,7 @@ public class GdbWrapper
         ProcessBuilder builder = new ProcessBuilder("gdb", "-q", programBinaryFilename);
         builder.redirectErrorStream(true); // merges stdout, stderr
         debuggerProcess = builder.start();
-        fromGdb = new Scanner(debuggerProcess.getInputStream());
+        fromGdb = new Scanner(new BufferedInputStream(debuggerProcess.getInputStream()));
         toGdb = new PrintStream(debuggerProcess.getOutputStream());
 
         fromProgram = new BufferedInputStream(new FileInputStream(fromProgramFilename));
@@ -132,9 +134,18 @@ public class GdbWrapper
     throws IOException, NoSuchElementException, IllegalStateException
     {
         // TODO implement this
+        /*
+        String line = fromGdb.nextLine();
+        while (!line.equals("(gdb) "))
+        {
+            System.out.println(line);
+            line = fromGdb.nextLine();
+        }
+        */
+
         fromGdb.useDelimiter("\\(gdb\\) ");
         String line = fromGdb.next();
-        System.out.println(line);
+        System.out.println("Read " + line.length() + " characters.");
 
         return line;
     }
