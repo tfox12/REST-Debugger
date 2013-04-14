@@ -1,29 +1,28 @@
 package capstone.daemon;
 
-import capstone.wrapper.*;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
+import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 public class Daemon
 {
+    public Daemon(int port)
+    {
+        ServerBootstrap bootstrap = new ServerBootstrap(
+                new NioServerSocketChannelFactory(
+                        Executors.newCachedThreadPool(),
+                        Executors.newCachedThreadPool()));
+
+        bootstrap.setPipelineFactory(new DaemonPipelineFactory());
+
+        bootstrap.bind(new InetSocketAddress(port));
+    }
+
     public static void main(String... args)
     throws Exception // FIXME
     {
-        String programText = "#include <iostream>\n"
-                           + "using namespace std;\n"
-                           + "int main() {\n"
-                           + "    cout << \"Hello, there!\\n\";\n"
-                           + "}\n";
-
-        GdbWrapper wrapper = new GdbWrapper(1342, 0);
-        wrapper.prepare(programText);
-        wrapper.runProgram();
-        //wrapper.runProgram();
-        String output = wrapper.getStdOut();
-
-        System.out.println("Read output: " + output);
-        String expectedOutput = "Hello, there!\n";
-        if (!expectedOutput.equals(output)) {
-            System.out.println("Error!");
-        }
+        new Daemon(6789);
     }
 }
 
