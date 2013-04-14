@@ -1,36 +1,73 @@
 package capstone.wrapper;
 
+import static capstone.wrapper.DebuggerCommand.RequestParameters.*;
+
 public enum DebuggerCommand
 {
-    PREPARE('p', true)
-  , RUN('r')
-  , STEPIN('z')
-  , STEPOUT('w')
-  , STEPOVER('q')
-  , GETVALUES('V')
-  , GETSTDOUT('o')
-  , GETSTDERR('e')
-  , GIVEINPUT('i', true)
-  , ADDBREAKPOINT('b', true)
-  , GETLINENUMBER('L')
-  , KILLDEBUGGER('k')
-  , UNKNOWN('u')
+    PREPARE('p', BOTH)
+  , RUN('r', NEITHER)
+  , STEPIN('z', NEITHER)
+  , STEPOUT('w', NEITHER)
+  , STEPOVER('q', NEITHER)
+  , GETVALUES('V', RETURNS_RESULT)
+  , GETSTDOUT('o', RETURNS_RESULT)
+  , GETSTDERR('e', RETURNS_RESULT)
+  , GIVEINPUT('i', NEEDS_DATA)
+  , ADDBREAKPOINT('b', NEEDS_DATA)
+  , GETLINENUMBER('L', RETURNS_RESULT)
+  , KILLDEBUGGER('k', NEITHER)
+  , UNKNOWN('u', NEITHER)
   ;
-
-    private char commandCharacter;
-    private boolean hasData;
-    private String data;
-
-    DebuggerCommand(char c)
+    public enum RequestParameters
     {
-        this.commandCharacter = c;
-        this.hasData = false;
+        NEITHER
+      , NEEDS_DATA
+      , RETURNS_RESULT
+      , BOTH
     }
 
-    DebuggerCommand(char c, boolean hasData)
+    private char commandCharacter;
+    private boolean needsData;
+    private boolean returnsResult;
+
+    public boolean needsData()
+    {
+        return needsData;
+    }
+
+    public boolean returnsResult()
+    {
+        return returnsResult;
+    }
+
+    DebuggerCommand(char c, RequestParameters parameters)
     {
         this.commandCharacter = c;
-        this.hasData = hasData;
+
+        needsData = false;
+        returnsResult = false;
+
+        switch (parameters)
+        {
+            case NEITHER:
+                break;
+
+            case NEEDS_DATA:
+                needsData = true;
+                break;
+
+            case RETURNS_RESULT:
+                returnsResult = true;
+                break;
+
+            case BOTH:
+                needsData = true;
+                returnsResult = true;
+                break;
+
+            default:
+                break;
+        }
     }
 
     public char getChar()
@@ -46,16 +83,6 @@ public enum DebuggerCommand
                 return cmd;
         }
         return UNKNOWN;
-    }
-
-    public String getData()
-    {
-        return data;
-    }
-
-    public void setData(String data)
-    {
-        this.data = data;
     }
 }
 

@@ -7,12 +7,12 @@ import java.io.*;
 
 public abstract class Wrapper extends Thread
 {
-    private Object commandLock;
-    private DebuggerCommand command;
+    private Object requestLock;
+    private DebuggerRequest request;
 
     public Wrapper()
     {
-        commandLock = new Object();
+        requestLock = new Object();
     }
 
     public abstract List<ProgramError> prepare(String programText) throws IOException, InterruptedException;
@@ -32,15 +32,15 @@ public abstract class Wrapper extends Thread
     public abstract void addBreakpoint(int lineNumber) throws IOException;
     public abstract int getLineNumber() throws IOException;
 
-    public boolean submitCommand(DebuggerCommand command)
+    public boolean submitRequest(DebuggerRequest request)
     throws InterruptedException
     {
         boolean result = false;
-        synchronized (commandLock)
+        synchronized (requestLock)
         {
-            if (command == null)
+            if (request == null)
             {
-                this.command = command;
+                this.request = request;
                 result = true;
             }
         }
@@ -50,32 +50,33 @@ public abstract class Wrapper extends Thread
     public boolean waiting()
     {
         boolean waiting;
-        synchronized (commandLock)
+        synchronized (requestLock)
         {
-            waiting = (command != null);
+            waiting = (request != null);
         }
         return waiting;
     }
 
-    private DebuggerCommand getCommand()
+    private DebuggerRequest getRequest()
     {
-        synchronized (commandLock)
+        synchronized (requestLock)
         {
-            return command;
+            return request;
         }
     }
 
-    private void clearCommand()
+    private void clearRequest()
     {
-        synchronized (commandLock)
+        synchronized (requestLock)
         {
-            command = null;
+            request.monitor.notifyAll();
+            request = null;
         }
     }
 
     void run(Wrapper wrapper)
     {
-        //
+        
     }
 }
 
