@@ -145,7 +145,54 @@ public class GdbWrapperTest
 
         wrapper.runProgram();
         wrapper.killDebugger();
+    }
 
+    @Test
+    public void breakpointsTest()
+    throws Exception
+    {
+        Wrapper wrapper = new GdbWrapper(1342, 1);
+
+        List<ProgramError> errors = wrapper.prepare(longerMainProgram);
+        assertEquals("program should compile", 0, errors.size());
+        assertEquals("incorrect line number", 6, wrapper.getLineNumber());
+
+        wrapper.addBreakpoint(10);
+        wrapper.runProgram();
+        assertEquals("wrong line", 10, wrapper.getLineNumber());
+        wrapper.stepIn();
+        assertEquals("wrong line", 11, wrapper.getLineNumber());
+
+        wrapper.runProgram();
+        wrapper.killDebugger();
+    }
+
+    @Test
+    public void compilerErrorTest()
+    throws Exception
+    {
+        Wrapper wrapper = new GdbWrapper(1342, 2);
+
+        List<ProgramError> errors = wrapper.prepare(badCompileProgram);
+        assertEquals("not enough errors", 2, errors.size());
+        assertEquals("wrong line number", 6, errors.get(0).lineNumber);
+        assertEquals("wrong line number", 9, errors.get(1).lineNumber);
+    }
+
+    @Test(timeout = 3000)
+    public void provideInputTest()
+    throws Exception
+    {
+        Wrapper wrapper = new GdbWrapper(1342, 3);
+
+        List<ProgramError> errors = wrapper.prepare(needsInputProgram);
+        assertEquals("program should compile", 0, errors.size());
+
+        String input = "214\n";
+        wrapper.provideInput(input);
+        wrapper.runProgram();
+        assertEquals("output should match", input, wrapper.getStdOut());
+        wrapper.killDebugger();
     }
 }
 

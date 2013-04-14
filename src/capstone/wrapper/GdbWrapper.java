@@ -51,8 +51,21 @@ public class GdbWrapper extends Wrapper
         {
             ArrayList<ProgramError> errors = new ArrayList<ProgramError>();
 
-            // TODO finish this after we have tested the rest
-            System.out.println("FOUND AN ERROR!");
+            while (compilerOutput.hasNextLine())
+            {
+                String errorLine = compilerOutput.nextLine();
+                int errorIndex = errorLine.indexOf("error: ");
+                if (errorIndex != -1)
+                {
+                    int firstColon = errorLine.indexOf(':');
+                    int secondColon = errorLine.indexOf(':', firstColon + 1);
+                    Scanner lineNumberScanner = new Scanner(errorLine.substring(firstColon + 1));
+                    lineNumberScanner.useDelimiter(":");
+                    int lineNumber = lineNumberScanner.nextInt();
+                    String errorText = errorLine.substring(errorIndex + 7);
+                    errors.add(new ProgramError(lineNumber, errorText));
+                }
+            }
 
             return errors;
         }
@@ -60,8 +73,10 @@ public class GdbWrapper extends Wrapper
         createGdbProcess();
 
         readUntilPrompt();
-        String startCommand = "start 0 > " + toProgramFilename + " 1 > " + fromProgramFilename + " 2 > " + fromProgramFilename;
+        String startCommand = "start 0 < " + toProgramFilename + " 1 > " + fromProgramFilename + " 2 > " + fromProgramFilename;
         write(startCommand);
+        fromProgram = new BufferedInputStream(new FileInputStream(fromProgramFilename));
+        toProgram = new PrintStream(new FileOutputStream(toProgramFilename));
         readUntilPrompt();
 
         return new ArrayList<ProgramError>();
@@ -100,7 +115,6 @@ public class GdbWrapper extends Wrapper
     {
         toProgram.print(input);
         toProgram.flush();
-        // TODO consider if we should make this print, or println?
     }
 
     public StackFrame getLocalValues()
@@ -145,7 +159,6 @@ public class GdbWrapper extends Wrapper
         write("finish");
         String output = readUntilPrompt();
         if (output.equals("\"finish\" not meaningful in the outermost frame.\n"))
-            // TODO test this behavior
         {
             runProgram();
         }
@@ -188,9 +201,6 @@ public class GdbWrapper extends Wrapper
         debuggerProcess = builder.start();
         fromGdb = new Scanner(new BufferedInputStream(debuggerProcess.getInputStream()));
         toGdb = new PrintStream(debuggerProcess.getOutputStream());
-
-        fromProgram = new BufferedInputStream(new FileInputStream(fromProgramFilename));
-        toProgram = new PrintStream(new FileOutputStream(toProgramFilename));
     }
 
     private void write(String command)
