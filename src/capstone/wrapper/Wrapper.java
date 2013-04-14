@@ -83,18 +83,23 @@ public abstract class Wrapper extends Thread
     @Override
     public void run()
     {
+        System.out.println("[gdb] Starting the thread!");
         activeLoop: while (active)
         {
+            System.out.println("[gdb] entering request lock block");
             synchronized (requestLock)
             {
                 while (request == null)
                 {
                     try
                     {
+                        System.out.println("[gdb] waiting for request lock");
                         requestLock.wait();
+                        System.out.println("[gdb] woken up");
                     }
                     catch (InterruptedException exception)
                     {
+                        System.out.println("[gdb] exception!");
                         if (active)
                         {
                             continue;
