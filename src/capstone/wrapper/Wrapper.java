@@ -108,7 +108,7 @@ public abstract class Wrapper extends Thread
 
                 try
                 {
-                    request.result = null;
+                    request.result = "";
                     switch (request.command)
                     {
                         case PREPARE:

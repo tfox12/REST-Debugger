@@ -1,5 +1,7 @@
 package capstone.daemon;
 
+import capstone.wrapper.*;
+
 import java.util.HashMap;
 import java.net.URLDecoder;
 
@@ -9,6 +11,11 @@ import io.netty.handler.codec.http.*;
 
 public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFullHttpRequest>
 {
+    /**
+     * Format for the key is: "userId_debuggerId"
+     */
+    static HashMap<String,Wrapper> wrapperMap = new HashMap<String,Wrapper>();
+
     @Override
     public void messageReceived(
                       ChannelHandlerContext ctx
@@ -19,7 +26,30 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
         try 
         { 
             HashMap<String, String> args = parseBody(body);
-            
+
+            // TODO add session tokens
+            // TODO add specifier of C++ vs Python
+
+            String userId = args.get("userid");
+            String debuggerId = args.get("dbgid");
+            String wrapperKey = userId + "_" + debuggerId;
+
+            String commandString = args.get("call");
+            char commandChar = commandString.charAt(0); // TODO make sure it's len > 0
+            DebuggerCommand command = DebuggerCommand.fromChar(commandChar);
+            String data = args.get("data"); // TODO ensure that this is set
+            DebuggerRequest debuggerRequest = new DebuggerRequest(command, data);
+
+            // TODO determine the cases when we want to create a new one
+            Wrapper wrapper = wrapperMap.get(wrapperKey);
+            if (wrapper == null)
+            {
+                wrapper = new GdbWrapper(Integer.parseInt(userId), Integer.parseInt(debuggerId));
+                wrapperMap.put(wrapperKey, wrapper);
+            }
+
+            wrapper.submitRequest(debuggerRequest);
+            debuggerRequest.monitor.wait();
         }
         catch(Exception e) 
         {

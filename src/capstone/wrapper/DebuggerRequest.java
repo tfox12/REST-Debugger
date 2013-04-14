@@ -22,11 +22,10 @@ public class DebuggerRequest
      */
     public Object monitor;
 
-    public DebuggerRequest(DebuggerCommand command, String data, String result)
+    public DebuggerRequest(DebuggerCommand command, String data)
     {
         this.command = command;
         this.data = data;
-        this.result = result;
         monitor = new Object();
     }
 }
