@@ -39,20 +39,17 @@ public abstract class Wrapper extends Thread
     public boolean submitRequest(DebuggerRequest request)
     throws InterruptedException
     {
-        synchronized (requestLock)
+        if (request == null)
         {
-            if (request == null)
-            {
-                this.request = request;
-                System.out.println("[gdb] Notifying to wake up the wrapper!");
-                requestLock.notify();
-                System.out.println("[gdb] Notified to wake up the wrapper!");
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            this.request = request;
+            System.out.println("[gdb] Notifying to wake up the wrapper!");
+            requestLock.notify();
+            System.out.println("[gdb] Notified to wake up the wrapper!");
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
