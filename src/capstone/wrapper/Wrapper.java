@@ -69,7 +69,10 @@ public abstract class Wrapper extends Thread
         synchronized (requestLock)
         {
             System.out.println("[gdb] Notifying the daemon!");
-            request.monitor.notifyAll();
+            synchronized (request.monitor)
+            {
+                request.monitor.notifyAll();
+            }
             System.out.println("[gdb] Notified the daemon!");
             request = null;
         }
