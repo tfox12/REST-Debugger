@@ -1,5 +1,6 @@
 package capstone.wrapper;
 
+import static capstone.wrapper.DebuggerCommand.*;
 import capstone.util.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -104,14 +105,89 @@ public abstract class Wrapper extends Thread
                     }
                 }
 
-                // TODO handle the request here
+                try
+                {
+                    request.result = null;
+                    switch (request.command)
+                    {
+                        case PREPARE:
+                            List<ProgramError> errors = prepare(request.data);
+                            request.result = errors.toString(); // FIXME use JSON
+                            break;
+
+                        case RUN:
+                            runProgram();
+                            break;
+
+                        case STEPIN:
+                            stepIn();
+                            break;
+
+                        case STEPOUT:
+                            stepOut();
+                            break;
+
+                        case STEPOVER:
+                            stepOver();
+                            break;
+
+                        case GETVALUES:
+                            // TODO
+                            request.result = "";
+                            break;
+
+                        case GETSTDOUT:
+                            request.result = getStdOut();
+                            break;
+
+                        case GETSTDERR:
+                            // TODO
+                            break;
+
+                        //note: GIVEINPUT case is not handled because
+                        // it should be handled by the daemon itself
+
+                        case ADDBREAKPOINT:
+                            try
+                            {
+                                addBreakpoint(Integer.parseInt(request.data));
+                            }
+                            catch (NumberFormatException badFormatException)
+                            {
+                                request.result = "Error: invalid line number";
+                            }
+                            break;
+
+                        case GETLINENUMBER:
+                            int lineNumber = getLineNumber();
+                            request.result = String.valueOf(lineNumber);
+                            break;
+
+                        case KILLDEBUGGER:
+                            active = false;
+                            killDebugger();
+                            break;
+
+                        case UNKNOWN:
+                            active = false;
+                            killDebugger();
+                            break;
+                    }
+                }
+                catch (IOException exception)
+                {
+                    active = false;
+                    killDebugger();
+                }
+                catch (InterruptedException exception)
+                {
+                    active = false;
+                    killDebugger();
+                }
             }
 
             clearRequest();
         } 
     }
 }
-
-// TODO the run debugger functionality which takes a Wrapper and launches the timer,
-// handles the receive commands, etc. This should be a static function of Wrapper.
 

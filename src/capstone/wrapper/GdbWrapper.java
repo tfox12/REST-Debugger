@@ -85,7 +85,10 @@ public class GdbWrapper extends Wrapper
 
     public void killDebugger()
     {
-        debuggerProcess.destroy();
+        if (debuggerProcess != null)
+        {
+            debuggerProcess.destroy();
+        }
     }
 
     public void runProgram()
