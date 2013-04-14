@@ -51,7 +51,10 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             System.out.println("[daemon] Submitting a request...");
             wrapper.submitRequest(debuggerRequest);
             System.out.println("[daemon] Waiting on the monitor...");
-            debuggerRequest.monitor.wait();
+            synchronized (debuggerRequest.monitor)
+            {
+                debuggerRequest.monitor.wait();
+            }
             System.out.println("[daemon] Woke up!");
         }
         catch(Exception e) 
