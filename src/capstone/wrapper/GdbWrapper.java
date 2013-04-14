@@ -9,7 +9,6 @@ public class GdbWrapper extends Wrapper
 {
     public GdbWrapper(int userId, int debuggerId)
     {
-        // TODO generate filenames
         programTextFilename = "/tmp/program_" + userId + "_" + debuggerId + ".cpp";
         programBinaryFilename = "/tmp/program_" + userId + "_" + debuggerId + ".out";
 

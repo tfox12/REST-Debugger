@@ -65,6 +65,7 @@
         <junit printsummary="yes" fork="yes" failureProperty="test.failure">
             <classpath refid="classpath.test" />
             <formatter type="plain" />
+            <formatter type="brief" usefile="false" />
             <batchtest todir="${reports}">
                 <fileset dir="${test}">
                     <include name="**/*Test.java" />
