@@ -15,7 +15,7 @@ public abstract class Wrapper extends Thread
     public Wrapper()
     {
         requestLock = new Object();
-        active = true;
+        active = false;
     }
 
     public abstract List<ProgramError> prepare(String programText) throws IOException, InterruptedException;
@@ -39,17 +39,20 @@ public abstract class Wrapper extends Thread
     public boolean submitRequest(DebuggerRequest request)
     throws InterruptedException
     {
-        if (request == null)
+        synchronized (requestLock)
         {
-            this.request = request;
-            System.out.println("[gdb] Notifying to wake up the wrapper!");
-            requestLock.notify();
-            System.out.println("[gdb] Notified to wake up the wrapper!");
-            return true;
-        }
-        else
-        {
-            return false;
+            if (request == null)
+            {
+                this.request = request;
+                System.out.println("[gdb] Notifying to wake up the wrapper!");
+                requestLock.notify();
+                System.out.println("[gdb] Notified to wake up the wrapper!");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
@@ -77,10 +80,16 @@ public abstract class Wrapper extends Thread
         active = false;
     }
 
+    public boolean isActive()
+    {
+        return active;
+    }
+
     @Override
     public void run()
     {
         System.out.println("[gdb] Starting the thread!");
+        active = true;
         activeLoop: while (active)
         {
             System.out.println("[gdb] entering request lock block");
