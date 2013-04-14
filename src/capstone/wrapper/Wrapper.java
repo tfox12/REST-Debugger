@@ -9,10 +9,12 @@ public abstract class Wrapper extends Thread
 {
     private Object requestLock;
     private DebuggerRequest request;
+    private boolean active;
 
     public Wrapper()
     {
         requestLock = new Object();
+        active = true;
     }
 
     public abstract List<ProgramError> prepare(String programText) throws IOException, InterruptedException;
@@ -35,33 +37,26 @@ public abstract class Wrapper extends Thread
     public boolean submitRequest(DebuggerRequest request)
     throws InterruptedException
     {
-        boolean result = false;
         synchronized (requestLock)
         {
             if (request == null)
             {
                 this.request = request;
-                result = true;
+                requestLock.notify();
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
-        return result;
     }
 
     public boolean waiting()
     {
-        boolean waiting;
         synchronized (requestLock)
         {
-            waiting = (request != null);
-        }
-        return waiting;
-    }
-
-    private DebuggerRequest getRequest()
-    {
-        synchronized (requestLock)
-        {
-            return request;
+            return (request != null);
         }
     }
 
@@ -74,9 +69,46 @@ public abstract class Wrapper extends Thread
         }
     }
 
-    void run(Wrapper wrapper)
+    public void shutdown()
     {
-        
+        active = false;
+    }
+
+    @Override
+    public void run()
+    {
+
+        activeLoop: while (active)
+        {
+            synchronized (requestLock)
+            {
+                while (request == null)
+                {
+                    try
+                    {
+                        requestLock.wait();
+                    }
+                    catch (InterruptedException exception)
+                    {
+                        if (active)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            // To whoever reads this: I'm sorry.
+                            // I decided to use a label and I
+                            // should be punished.  --ntietz
+                            break activeLoop;
+                        }
+                    }
+                }
+
+                // TODO handle the request here
+            }
+
+            clearRequest();
+        } 
     }
 }
 
