@@ -5,7 +5,7 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
-public class GdbWrapper
+public class GdbWrapper extends Wrapper
 {
     public GdbWrapper(int userId, int debuggerId)
     {
@@ -60,39 +60,30 @@ public class GdbWrapper
 
         createGdbProcess();
 
-        String startCommand = "start 0 > " + toProgramFilename + " 1 > " + fromProgramFilename + " 2 > " + fromProgramFilename;
-        System.out.println(startCommand);
-        toGdb.println(startCommand);
-        toGdb.flush();
         readUntilPrompt();
-        // TODO open those files as stuffs
+        String startCommand = "start 0 > " + toProgramFilename + " 1 > " + fromProgramFilename + " 2 > " + fromProgramFilename;
+        write(startCommand);
+        readUntilPrompt();
 
         return new ArrayList<ProgramError>();
     }
 
-    // TODO kill debugger
+    public void killDebugger()
+    {
+        debuggerProcess.destroy();
+    }
 
     public void runProgram()
     throws IOException
     {
-        String command = "c";
-        toGdb.println(command);
-        toGdb.flush();
-
+        write("c");
         String output = readUntilPrompt();
-        /*while (fromGdb.hasNextByte())
-        {
-            System.out.println("LINE: " + fromGdb.nextLine());
-        }*/
-        //System.out.println("Run program output: " + output);
     }
 
     public String getStdOut()
     throws IOException
     {
-        readUntilPrompt();
         int numAvailable = fromProgram.available();
-        System.out.println("Available: " + numAvailable);
         if (numAvailable == 0)
         {
             return "";
@@ -106,7 +97,90 @@ public class GdbWrapper
         }
     }
 
-    // TODO other calls
+    public void provideInput(String input)
+    {
+        toProgram.print(input);
+        toProgram.flush();
+        // TODO consider if we should make this print, or println?
+    }
+
+    public StackFrame getLocalValues()
+    {
+        // TODO implement this
+        return null;
+    }
+
+    public List<StackFrame> getStack()
+    {
+        // TODO implement this
+        return null;
+    }
+
+    public String evaluateExpression(String expression)
+    throws IOException
+    {
+        write("print " + expression);
+        String output = readUntilPrompt();
+
+        int equalsIndex = output.indexOf('=');
+        if (equalsIndex == -1)
+        {
+            return "error: expression not valid";
+        }
+        else
+        {
+            output.substring(equalsIndex + 2, output.length() - 1);
+        }
+
+        return null;
+    }
+
+    public void stepIn()
+    throws IOException
+    {
+        write("step");
+        readUntilPrompt();
+    }
+
+    public void stepOut()
+    throws IOException
+    {
+        write("finish");
+        String output = readUntilPrompt();
+        if (output.equals("\"finish\" not meaningful in the outermost frame.\n"))
+            // TODO test this behavior
+        {
+            runProgram();
+        }
+    }
+
+    public void stepOver()
+    throws IOException
+    {
+        write("next");
+        readUntilPrompt();
+    }
+
+    public void addBreakpoint(int lineNumber)
+    throws IOException
+    {
+        write("break " + lineNumber);
+        readUntilPrompt();
+    }
+
+    public int getLineNumber()
+    throws IOException
+    {
+        int lineNumber = 0;
+
+        write("info line");
+        String output = readUntilPrompt();
+
+        Scanner outputScanner = new Scanner(output);
+        outputScanner.next();
+
+        return outputScanner.nextInt();
+    }
 
     private void createGdbProcess()
     throws IOException
@@ -125,28 +199,15 @@ public class GdbWrapper
     private void write(String command)
     throws IOException
     {
-        // TODO actually use this...
-        // maybe change to a println?
-        toGdb.write(command.getBytes());
+        toGdb.println(command);
+        toGdb.flush();
     }
 
     private String readUntilPrompt()
-    throws IOException, NoSuchElementException, IllegalStateException
+    throws IOException
     {
-        // TODO implement this
-        /*
-        String line = fromGdb.nextLine();
-        while (!line.equals("(gdb) "))
-        {
-            System.out.println(line);
-            line = fromGdb.nextLine();
-        }
-        */
-
         fromGdb.useDelimiter("\\(gdb\\) ");
         String line = fromGdb.next();
-        System.out.println("Read " + line.length() + " characters.");
-
         return line;
     }
 }

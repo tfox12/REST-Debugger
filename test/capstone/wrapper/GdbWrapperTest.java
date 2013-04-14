@@ -17,6 +17,7 @@ public class GdbWrapperTest
 
         GdbWrapper wrapper = new GdbWrapper(1342, 0);
         wrapper.prepare(programText);
+        assertEquals(4, wrapper.getLineNumber());
         wrapper.runProgram();
         String output = wrapper.getStdOut();
 

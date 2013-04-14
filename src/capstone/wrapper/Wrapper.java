@@ -3,27 +3,28 @@ package capstone.wrapper;
 import capstone.util.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.io.*;
 
 public abstract class Wrapper
 {
     private LinkedBlockingQueue<DebuggerCommand> commandQueue;
 
-    public abstract List<ProgramError> prepare(String programText);
+    public abstract List<ProgramError> prepare(String programText) throws IOException, InterruptedException;
     public abstract void killDebugger();
-    public abstract void runProgram();
+    public abstract void runProgram() throws IOException;
 
-    public abstract String getStdOut();
-    public abstract void provideInput(String input);
-    public abstract StackFrame getLocalValues();
-    public abstract List<StackFrame> getStack();
-    public abstract String evaluateExpression(String expression);
+    public abstract String getStdOut() throws IOException;
+    public abstract void provideInput(String input) throws IOException;
+    public abstract StackFrame getLocalValues() throws IOException;
+    public abstract List<StackFrame> getStack() throws IOException;
+    public abstract String evaluateExpression(String expression) throws IOException;
 
-    public abstract void stepIn();
-    public abstract void stepOut();
-    public abstract void stepOver();
+    public abstract void stepIn() throws IOException;
+    public abstract void stepOut() throws IOException;
+    public abstract void stepOver() throws IOException;
 
-    public abstract void addBreakpoint(int lineNumber);
-    public abstract int getLineNumber();
+    public abstract void addBreakpoint(int lineNumber) throws IOException;
+    public abstract int getLineNumber() throws IOException;
 
     public void submitCommand(DebuggerCommand command)
     throws InterruptedException
