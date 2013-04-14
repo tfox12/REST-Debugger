@@ -1,7 +1,11 @@
 package capstone.wrapper;
 
+import capstone.util.*;
+
 import static org.junit.Assert.*;
 import org.junit.*;
+
+import java.util.*;
 
 public class GdbWrapperTest
 {
@@ -86,13 +90,17 @@ public class GdbWrapperTest
     }
 
     @Test
-    public void test()
+    public void helloWorldTest()
     throws Exception
     {
         Wrapper wrapper = new GdbWrapper(1342, 0);
-        wrapper.prepare(helloWorldProgram);
+
+        List<ProgramError> errors = wrapper.prepare(helloWorldProgram);
+        assertEquals("program should compile", 0, errors.size());
         assertEquals("incorrect line number", 6, wrapper.getLineNumber());
+
         wrapper.runProgram();
+        wrapper.killDebugger();
         String output = wrapper.getStdOut();
 
         String expectedOutput = "Hello, world!\n";
