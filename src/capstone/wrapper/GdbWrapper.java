@@ -128,10 +128,8 @@ public class GdbWrapper extends Wrapper
         }
         else
         {
-            output.substring(equalsIndex + 2, output.length() - 1);
+            return output.substring(equalsIndex + 2, output.length() - 1);
         }
-
-        return null;
     }
 
     public void stepIn()

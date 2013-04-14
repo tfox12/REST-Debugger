@@ -106,5 +106,46 @@ public class GdbWrapperTest
         String expectedOutput = "Hello, world!\n";
         assertEquals("stdout did not match", expectedOutput, output);
     }
+
+    @Test
+    public void basicSteppingTest()
+    throws Exception
+    {
+        Wrapper wrapper = new GdbWrapper(1342, 1);
+
+        List<ProgramError> errors = wrapper.prepare(longerMainProgram);
+        assertEquals("program should compile", 0, errors.size());
+        assertEquals("incorrect line number", 6, wrapper.getLineNumber());
+
+        String output;
+        String result;
+
+        wrapper.stepIn();
+        output = wrapper.getStdOut();
+        assertEquals("the output did not match", "", output);
+        result = wrapper.evaluateExpression("x");
+        assertEquals("the expression is incorrect", "10", result);
+
+        wrapper.stepIn();
+        output = wrapper.getStdOut();
+        assertEquals("the output did not match", "", output);
+        result = wrapper.evaluateExpression("x + y");
+        assertEquals("the expression is incorrect", "23", result);
+
+        wrapper.stepIn();
+        wrapper.stepOver();
+        output = wrapper.getStdOut();
+        assertEquals("the output did not match", "x is: 10\n", output);
+
+        wrapper.stepOut();
+        output = wrapper.getStdOut();
+        assertEquals("the output did not match", "y is: 13\n3.14159 is delicious\n", output);
+        result = wrapper.evaluateExpression("pi == 3.14159");
+        assertEquals("should not be valid", "error: expression not valid", result);
+
+        wrapper.runProgram();
+        wrapper.killDebugger();
+
+    }
 }
 

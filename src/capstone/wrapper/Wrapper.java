@@ -7,7 +7,13 @@ import java.io.*;
 
 public abstract class Wrapper
 {
-    private LinkedBlockingQueue<DebuggerCommand> commandQueue;
+    private Object commandLock;
+    private DebuggerCommand command;
+
+    public Wrapper()
+    {
+        commandLock = new Object();
+    }
 
     public abstract List<ProgramError> prepare(String programText) throws IOException, InterruptedException;
     public abstract void killDebugger();
@@ -26,10 +32,29 @@ public abstract class Wrapper
     public abstract void addBreakpoint(int lineNumber) throws IOException;
     public abstract int getLineNumber() throws IOException;
 
-    public void submitCommand(DebuggerCommand command)
+    public boolean submitCommand(DebuggerCommand command)
     throws InterruptedException
     {
-        commandQueue.put(command);
+        boolean result = false;
+        synchronized (commandLock)
+        {
+            if (command == null)
+            {
+                this.command = command;
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    public boolean waiting()
+    {
+        boolean waiting;
+        synchronized (commandLock)
+        {
+            waiting = (command != null);
+        }
+        return waiting;
     }
 
     // TODO change to run
