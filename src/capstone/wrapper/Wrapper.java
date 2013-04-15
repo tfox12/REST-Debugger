@@ -2,6 +2,7 @@ package capstone.wrapper;
 
 import static capstone.wrapper.DebuggerCommand.*;
 import capstone.util.*;
+import org.json.simple.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.io.*;
@@ -125,13 +126,23 @@ public abstract class Wrapper extends Thread
 
                 try
                 {
+                    JSONObject jsonResult = new JSONObject();
                     request.result = "";
                     switch (request.command)
                     {
                         case PREPARE:
                             System.out.println("[gdb] Handling a prepare command!");
                             List<ProgramError> errors = prepare(request.data);
-                            request.result = errors.toString(); // FIXME use JSON
+                            JSONArray jsonErrorList = new JSONArray();
+                            for (ProgramError each : errors)
+                            {
+                                JSONObject jsonEach = new JSONObject();
+                                jsonEach.put("linenumber", "" + each.lineNumber);
+                                jsonEach.put("errortext", JSONObject.escape(each.errorText));
+                                jsonErrorList.add(jsonEach);
+                            }
+                            jsonResult.put("errors", jsonErrorList);
+                            request.result = jsonResult.toString();
                             System.out.println("[gdb] Results: " + request.result);
                             break;
 
