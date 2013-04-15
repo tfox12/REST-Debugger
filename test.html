@@ -10,11 +10,29 @@
             function compile()
             {
                 $.post("http://localhost:6789", 
-                    { "call": "prepareProgram",
-                      "usrid" : "1",
-                      "dbgid" : "1",
-                      "data": $("#source").val() });
+                    { 
+                        "call"  : "prepareProgram",
+                        "usrid" : "1",
+                        "dbgid" : "1",
+                        "data"  : $("#source").val()
+                    })
+                .done(new function(data)
+                {
+                    alert(data);
+                });
             }
+/*
+            function run()
+            {
+                $.post("http//localhost:6789",
+                    {
+                        "call"  : "run",
+                        "usrid" : "1",
+                        "dbgid" : "1",
+                        "data"  : ""
+                    });
+            }
+*/
         </script>
     </body>
 </html>

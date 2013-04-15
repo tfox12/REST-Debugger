@@ -11,7 +11,7 @@ public class DaemonInitializer extends ChannelInitializer<SocketChannel>
         ChannelPipeline pipeline = channel.pipeline();
         pipeline.addLast("decoder",     new HttpRequestDecoder());
         pipeline.addLast("aggrigate",   new HttpObjectAggregator(1048567));
-        pipeline.addLast("encoder",     new HttpRequestEncoder());
+        pipeline.addLast("encoder",     new HttpResponseEncoder());
         pipeline.addLast("handler",     new DaemonHandler());
     }
 }

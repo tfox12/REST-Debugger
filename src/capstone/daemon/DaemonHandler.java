@@ -5,9 +5,15 @@ import capstone.wrapper.*;
 import java.util.HashMap;
 import java.net.URLDecoder;
 
+import io.netty.buffer.*;
 import io.netty.util.CharsetUtil;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
+
+import static io.netty.handler.codec.http.HttpHeaders.Names.*;
+import static io.netty.handler.codec.http.HttpHeaders.*;
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpVersion.*;
 
 public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFullHttpRequest>
 {
@@ -57,6 +63,18 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
                 debuggerRequest.monitor.wait();
             }
             System.out.println("[daemon] Woke up!");
+
+            //TODO send back respone to client
+            System.out.println(debuggerRequest.result);
+            
+            FullHttpResponse response = new DefaultFullHttpResponse(
+                HTTP_1_1, OK, Unpooled.copiedBuffer(debuggerRequest.result , CharsetUtil.UTF_8));
+
+            response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
+
+            ctx.nextOutboundMessageBuffer().add(response);
+            ctx.flush().addListener(ChannelFutureListener.CLOSE);
+
         }
         catch(Exception e) 
         {
