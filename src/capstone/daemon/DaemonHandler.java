@@ -23,6 +23,12 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
     static HashMap<String,Wrapper> wrapperMap = new HashMap<String,Wrapper>();
 
     @Override
+    public void endMessageReceived(ChannelHandlerContext ctx) throws Exception
+    {
+        ctx.flush();
+    }
+
+    @Override
     public void messageReceived(
                       ChannelHandlerContext ctx
                     , DefaultFullHttpRequest request)
@@ -70,6 +76,8 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             FullHttpResponse response = new DefaultFullHttpResponse(
                 HTTP_1_1, OK, Unpooled.copiedBuffer(debuggerRequest.result , CharsetUtil.UTF_8));
 
+            response.headers().set(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+            response.headers().set(CONTENT_LENGTH, debuggerRequest.result.length());
             response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
 
             ctx.nextOutboundMessageBuffer().add(response);
