@@ -6,35 +6,49 @@
     <body>
         <textarea id="source"> </textarea>
         <button onClick="compile()">compileProgram</button>
+        <button onClick="run()">run</button>
+        <button onClick="getStdOut()">output</button>
         <script type="text/javascript">
+
+            function showresponse(data)
+            {
+                alert(JSON.stringify(data));
+            }
+
             function compile()
             {
-                function showresponse(data)
-                {
-                    alert(JSON.stringify(data));
-                    alert(unescape(data.errors[0].errortext));
-                }
 
                 $.post("http://localhost:6789", 
                     { 
-                        "call"  : "prepareProgram",
+                        "call"  : "p:prepareProgram",
                         "usrid" : "1",
                         "dbgid" : "1",
                         "data"  : $("#source").val()
                     }, showresponse, "json");
             }
-/*
+
             function run()
             {
-                $.post("http//localhost:6789",
+                $.post("http://localhost:6789",
                     {
-                        "call"  : "run",
+                        "call"  : "r:run",
                         "usrid" : "1",
                         "dbgid" : "1",
                         "data"  : ""
-                    });
+                    }, showresponse);
             }
-*/
+
+            function getStdOut()
+            {
+                $.post("http://localhost:6789",
+                    {
+                        "call"  : "o:getOutput",
+                        "usrid" : "1",
+                        "dbgid" : "1",
+                        "data"  : ""
+                    }, showresponse);
+            }
+
         </script>
     </body>
 </html>

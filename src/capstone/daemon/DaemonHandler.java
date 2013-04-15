@@ -33,6 +33,8 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
                       ChannelHandlerContext ctx
                     , DefaultFullHttpRequest request)
     {
+        System.out.println("[Daemon] Connection started");
+
         String body = request.data().toString(CharsetUtil.UTF_8);
         
         try 
@@ -93,12 +95,16 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
     private HashMap<String, String> parseBody(String body) throws Exception
     {
         HashMap<String, String> args = new HashMap<String, String>();
-        String[] tokens = body.split("&");
-        for(String token : tokens)
+        if(body.length() > 0)
         {
-            String[] kvp = token.split("=");
-            args.put(URLDecoder.decode(kvp[0], "UTF-8")
-                    ,URLDecoder.decode(kvp[1], "UTF-8"));
+            System.out.println("[daemon] parsing: " + body);
+            String[] tokens = body.split("&");
+            for(String token : tokens)
+            {
+                String[] kvp = token.split("=",2);
+                args.put(URLDecoder.decode(kvp[0], "UTF-8")
+                        ,URLDecoder.decode(kvp[1], "UTF-8"));
+            }
         }
         return args;
     }
