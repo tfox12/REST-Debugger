@@ -138,7 +138,7 @@ public abstract class Wrapper extends Thread
                             {
                                 JSONObject jsonEach = new JSONObject();
                                 jsonEach.put("linenumber", "" + each.lineNumber);
-                                jsonEach.put("errortext", JSONObject.escape(each.errorText));
+                                jsonEach.put("errortext", each.errorText);
                                 jsonErrorList.add(jsonEach);
                             }
                             jsonResult.put("errors", jsonErrorList);

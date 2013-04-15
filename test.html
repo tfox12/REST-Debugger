@@ -12,6 +12,7 @@
                 function showresponse(data)
                 {
                     alert(JSON.stringify(data));
+                    alert(unescape(data.errors[0].errortext));
                 }
 
                 $.post("http://localhost:6789", 
