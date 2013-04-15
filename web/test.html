@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="lib/codemirror.js"></script>
+        <link rel="stylesheet" href="lib/codemirror.css">
+        <script src="mode/clike/clike.js"></script>
+        <script src="mode/python/python.js"></script>
+        <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;}</style>
+    </head>
+    <body>
+        <div><textarea id="source" name="source">#include <iostream>
+
+int main()
+{
+    
+}</textarea></div>
+        <div><textarea id="input"></textarea></div>
+        <button onClick="compile()">compileProgram</button>
+        <button onClick="run()">run</button>
+        <button onClick="giveInput()">giveInput</button>
+        <button onClick="getStdOut()">output</button>
+        <script type="text/javascript">
+
+            function showresponse(data)
+            {
+                alert(JSON.stringify(data));
+            }
+
+            function compile()
+            {
+                var content = codeEditor.getValue()
+                submitCommand("prepare", "1", "1", content, showresponse);
+            }
+
+            function run()
+            {
+                submitCommand("run", "1", "1", "", showresponse);
+            }
+            
+            function giveInput()
+            {
+                var content = inputEditor.getValue();
+                submitCommand("giveinput", "1", "1", content, showresponse);
+            }
+
+            function getStdOut()
+            {
+                submitCommand("getstdout", "1", "1", "", showresponse);
+            }
+
+            function submitCommand(call, usrid, dbgid, data, callback)
+            {
+                $.post("http://localhost:6789",
+                    {
+                        "call"  : call,
+                        "usrid" : usrid,
+                        "dbgid" : dbgid,
+                        "data"  : data
+                    }, callback, "json");
+            }
+
+            var codeEditor = CodeMirror.fromTextArea(document.getElementById("source"), {
+                mode: "text/x-csrc",
+                lineNumbers: true,
+                indentUnit: 4,
+                tabMode: "shift",
+                matchBrackets:true
+            });
+            codeEditor.setSize("80em", "20em");
+
+            var inputEditor = CodeMirror.fromTextArea(document.getElementById("input"), {
+                smartIndent: false
+            });
+            inputEditor.setSize("80em", "5em");
+        </script>
+    </body>
+</html>

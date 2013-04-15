@@ -167,7 +167,9 @@ public abstract class Wrapper extends Thread
                             break;
 
                         case GETSTDOUT:
-                            jsonResult.put("stdout", getStdOut());
+                            String output = getStdOut();
+                            System.out.println("[gdb] Output was: " + output);
+                            jsonResult.put("stdout", output);
                             break;
 
                         case GETSTDERR:
@@ -190,6 +192,7 @@ public abstract class Wrapper extends Thread
 
                         case GETLINENUMBER:
                             int lineNumber = getLineNumber();
+                            jsonResult.put("linenumber", lineNumber);
                             request.result = String.valueOf(lineNumber);
                             break;
 
