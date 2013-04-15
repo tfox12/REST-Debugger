@@ -2,11 +2,16 @@
 <html>
     <head>
         <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-        <script src="lib/codemirror.js"></script>
         <link rel="stylesheet" href="lib/codemirror.css">
+        <script src="lib/codemirror.js"></script>
         <script src="mode/clike/clike.js"></script>
         <script src="mode/python/python.js"></script>
-        <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;}</style>
+        <style type="text/css">
+            .CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;}
+            .CodeMirror-activeline-background {background: #e8f2ff !important;}
+            .capstone-errorline-background {background: #FF6A57;}
+            .capstone-currentline-background {background: #FAE68C;}
+        </style>
     </head>
     <body>
         <div><textarea id="source" name="source">#include <iostream>
@@ -20,17 +25,61 @@ int main()
         <button onClick="run()">run</button>
         <button onClick="giveInput()">giveInput</button>
         <button onClick="getStdOut()">output</button>
+        <input type="text" id="linenumber"></input>
+        <button onClick="setBreakpoint()">set breakpoint</button>
+        <button onClick="getLineNumber()">line</button>
+        <button onClick="stepIn()">step in</button>
+        <button onClick="stepOver()">step over</button>
+        <button onClick="stepOut()">step out</button>
         <script type="text/javascript">
+            var currentline = 1;
 
             function showresponse(data)
             {
                 alert(JSON.stringify(data));
             }
 
+            function clearErrorLines()
+            {
+                for (var i = 0; i < codeEditor.lineCount(); i++)
+                {
+                    var line = codeEditor.getLineHandle(i);
+                    codeEditor.removeLineClass(line, "background", "capstone-errorline-background");
+                }
+            }
+
+            function highlightErrorLine(linenumber)
+            {
+                var line = codeEditor.getLineHandle(linenumber-1);
+                codeEditor.addLineClass(line, "background", "capstone-errorline-background");
+            }
+
+            function highlightErrors(data)
+            {
+                clearErrorLines();
+                for (var i = 0; i < data.errors.length; i++)
+                {
+                    highlightErrorLine(data.errors[i].linenumber);
+                    // you can also use data.errors[i].errortext to display the text.
+                }
+            }
+
+            function setCurrentLine(linenumber)
+            {
+                var oldline = codeEditor.getLineHandle(currentline-1);
+                codeEditor.removeLineClass(oldline, "background", "capstone-currentline-background");
+                var line = codeEditor.getLineHandle(linenumber-1);
+                codeEditor.addLineClass(line, "background", "capstone-currentline-background");
+                currentline = linenumber;
+            }
+
             function compile()
             {
                 var content = codeEditor.getValue()
-                submitCommand("prepare", "1", "1", content, showresponse);
+                submitCommand("prepare", "1", "1", content, function(data) {
+                    highlightErrors(data);
+                    getLineNumber();
+                });
             }
 
             function run()
@@ -49,6 +98,34 @@ int main()
                 submitCommand("getstdout", "1", "1", "", showresponse);
             }
 
+            function setBreakpoint()
+            {
+                linenumber = $("#linenumber").val();
+                submitCommand("breakpoint", "1", "1", linenumber, showresponse);
+            }
+
+            function getLineNumber()
+            {
+                submitCommand("linenumber", "1", "1", "", function(data) {
+                    setCurrentLine(data.linenumber);
+                });
+            }
+
+            function stepIn()
+            {
+                submitCommand("stepin", "1", "1", "", getLineNumber);
+            }
+
+            function stepOver()
+            {
+                submitCommand("stepover", "1", "1", "", getLineNumber);
+            }
+
+            function stepOut()
+            {
+                submitCommand("stepout", "1", "1", "", getLineNumber);
+            }
+
             function submitCommand(call, usrid, dbgid, data, callback)
             {
                 $.post("http://localhost:6789",
@@ -65,7 +142,7 @@ int main()
                 lineNumbers: true,
                 indentUnit: 4,
                 tabMode: "shift",
-                matchBrackets:true
+                matchBrackets:true,
             });
             codeEditor.setSize("80em", "20em");
 
@@ -73,6 +150,10 @@ int main()
                 smartIndent: false
             });
             inputEditor.setSize("80em", "5em");
+
+            //highlightErrorLine(2);
+            //highlightErrorLine(5);
+            //highlightCurrentLine(3);
         </script>
     </body>
 </html>
