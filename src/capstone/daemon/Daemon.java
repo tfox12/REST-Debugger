@@ -34,7 +34,7 @@ public class Daemon
     public static void main(String... args)
     throws Exception // FIXME
     {
-        new Daemon(9012);
+        new Daemon(6789);
     }
 }
 
