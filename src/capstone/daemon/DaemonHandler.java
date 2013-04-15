@@ -49,9 +49,14 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             String wrapperKey = userId + "_" + debuggerId;
 
             String commandString = args.get("call");
-            char commandChar = commandString.charAt(0); // TODO make sure it's len > 0
-            DebuggerCommand command = DebuggerCommand.fromChar(commandChar);
-            String data = args.get("data"); // TODO ensure that this is set
+            DebuggerCommand command = DebuggerCommand.fromString(commandString);
+
+            String data = args.get("data");
+            if (data == null)
+            {
+                data = "";
+            }
+
             DebuggerRequest debuggerRequest = new DebuggerRequest(command, data);
 
             // TODO determine the cases when we want to create a new one
@@ -64,16 +69,22 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             }
 
             System.out.println("[daemon] Submitting a request...");
-            wrapper.submitRequest(debuggerRequest);
-            System.out.println("[daemon] Waiting on the monitor...");
-            synchronized (debuggerRequest.monitor)
+            if (debuggerRequest.command == DebuggerCommand.GIVEINPUT)
             {
-                debuggerRequest.monitor.wait();
+                wrapper.provideInput(debuggerRequest.data);
+                debuggerRequest.result = "";
             }
-            System.out.println("[daemon] Woke up!");
-
-            //TODO send back respone to client
-            System.out.println(debuggerRequest.result);
+            else
+            {
+                wrapper.submitRequest(debuggerRequest);
+                System.out.println("[daemon] Waiting on the monitor...");
+                synchronized (debuggerRequest.monitor)
+                {
+                    debuggerRequest.monitor.wait();
+                }
+                System.out.println("[daemon] Woke up!");
+            }
+            System.out.println("[daemon] Got result: " + debuggerRequest.result);
             
             FullHttpResponse response = new DefaultFullHttpResponse(
                 HTTP_1_1, OK, Unpooled.copiedBuffer(debuggerRequest.result , CharsetUtil.UTF_8));
@@ -88,6 +99,7 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
         }
         catch(Exception e) 
         {
+            System.out.println("[daemon] Got an exception. Printing the stack trace:");
             e.printStackTrace();
         }
     }

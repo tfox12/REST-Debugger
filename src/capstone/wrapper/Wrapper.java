@@ -163,7 +163,7 @@ public abstract class Wrapper extends Thread
                             break;
 
                         case GETVALUES:
-                            // TODO
+                            // TODO this hasn't been implemented yet...
                             request.result = "";
                             break;
 
@@ -172,7 +172,7 @@ public abstract class Wrapper extends Thread
                             break;
 
                         case GETSTDERR:
-                            // TODO
+                            // TODO this hasn't been implemented yet...
                             break;
 
                         //note: GIVEINPUT case is not handled because
