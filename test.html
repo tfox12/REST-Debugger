@@ -19,48 +19,35 @@
 
             function compile()
             {
-
-                $.post("http://localhost:6789", 
-                    { 
-                        "call"  : "prepare",
-                        "usrid" : "1",
-                        "dbgid" : "1",
-                        "data"  : $("#source").val()
-                    }, showresponse, "json");
+                submitCommand("prepare", "1", "1", $("#source").val(), showresponse);
             }
 
             function run()
             {
-                $.post("http://localhost:6789",
-                    {
-                        "call"  : "run",
-                        "usrid" : "1",
-                        "dbgid" : "1",
-                        "data"  : ""
-                    }, showresponse);
+                submitCommand("run", "1", "1", "", showresponse);
             }
             
             function giveInput()
             {
-                $.post("http://localhost:6789",
-                    {
-                        "call"  : "giveinput",
-                        "usrid" : "1",
-                        "dbgid" : "1",
-                        "data"  : $("#input").val()
-                    }, showresponse, "json");
+                submitCommand("giveinput", "1", "1", $("#input").val(), showresponse);
             }
 
             function getStdOut()
             {
+                submitCommand("getstdout", "1", "1", "", showresponse);
+            }
+
+            function submitCommand(call, usrid, dbgid, data, callback)
+            {
                 $.post("http://localhost:6789",
                     {
-                        "call"  : "getstdout",
-                        "usrid" : "1",
-                        "dbgid" : "1",
-                        "data"  : ""
-                    }, showresponse);
+                        "call"  : call,
+                        "usrid" : usrid,
+                        "dbgid" : dbgid,
+                        "data"  : data
+                    }, callback, "json");
             }
+
 
         </script>
     </body>

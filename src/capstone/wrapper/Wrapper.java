@@ -142,7 +142,6 @@ public abstract class Wrapper extends Thread
                                 jsonErrorList.add(jsonEach);
                             }
                             jsonResult.put("errors", jsonErrorList);
-                            request.result = jsonResult.toString();
                             System.out.println("[gdb] Results: " + request.result);
                             break;
 
@@ -168,7 +167,7 @@ public abstract class Wrapper extends Thread
                             break;
 
                         case GETSTDOUT:
-                            request.result = getStdOut();
+                            jsonResult.put("stdout", getStdOut());
                             break;
 
                         case GETSTDERR:
@@ -202,6 +201,7 @@ public abstract class Wrapper extends Thread
                         case UNKNOWN:
                             break;
                     }
+                    request.result = jsonResult.toString();
                 }
                 catch (IOException exception)
                 {
