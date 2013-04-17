@@ -105,6 +105,7 @@ public class GdbWrapperTest
 
         String expectedOutput = "Hello, world!\n";
         assertEquals("stdout did not match", expectedOutput, output);
+        wrapper.cleanup();
     }
 
     @Test
@@ -145,6 +146,7 @@ public class GdbWrapperTest
 
         wrapper.runProgram();
         wrapper.killDebugger();
+        wrapper.cleanup();
     }
 
     @Test
@@ -165,6 +167,7 @@ public class GdbWrapperTest
 
         wrapper.runProgram();
         wrapper.killDebugger();
+        wrapper.cleanup();
     }
 
     @Test
@@ -177,6 +180,7 @@ public class GdbWrapperTest
         assertEquals("not enough errors", 2, errors.size());
         assertEquals("wrong line number", 6, errors.get(0).lineNumber);
         assertEquals("wrong line number", 9, errors.get(1).lineNumber);
+        wrapper.cleanup();
     }
 
     @Test(timeout = 3000)
@@ -193,6 +197,7 @@ public class GdbWrapperTest
         wrapper.runProgram();
         assertEquals("output should match", input, wrapper.getStdOut());
         wrapper.killDebugger();
+        wrapper.cleanup();
     }
 }
 

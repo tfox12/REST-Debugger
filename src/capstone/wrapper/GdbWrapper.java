@@ -94,6 +94,44 @@ public class GdbWrapper extends Wrapper
     }
 
     @Override
+    protected void cleanup()
+    {
+        try
+        {
+            if (toGdb != null)
+            {
+                toGdb.close();
+            }
+
+            if (fromGdb != null)
+            {
+                fromGdb.close();
+            }
+
+            if (toProgram != null)
+            {
+                toProgram.close();
+            }
+
+            if (fromProgram != null)
+            {
+                fromProgram.close();
+            }
+
+            safeDelete(programTextFilename);
+            safeDelete(programTextFilename);
+            safeDelete(programBinaryFilename);
+            safeDelete(fromProgramFilename);
+            safeDelete(toProgramFilename);
+        }
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+            // TODO log the failure here
+        }
+    }
+
+    @Override
     protected void runProgram()
     throws IOException
     {
@@ -209,7 +247,7 @@ public class GdbWrapper extends Wrapper
         return outputScanner.nextInt();
     }
 
-    protected void createGdbProcess()
+    private void createGdbProcess()
     throws IOException
     {
         //String command = "gdb -q " + programBinaryFilename;
@@ -220,19 +258,35 @@ public class GdbWrapper extends Wrapper
         toGdb = new PrintStream(debuggerProcess.getOutputStream());
     }
 
-    protected void write(String command)
+    private void write(String command)
     throws IOException
     {
         toGdb.println(command);
         toGdb.flush();
     }
 
-    protected String readUntilPrompt()
+    private String readUntilPrompt()
     throws IOException
     {
         fromGdb.useDelimiter("\\(gdb\\) ");
         String line = fromGdb.next();
         return line;
+    }
+
+    private void safeDelete(String filename)
+    {
+        if (filename != null)
+        {
+            try
+            {
+                (new File(filename)).delete();
+            }
+            catch (Exception exception)
+            {
+                exception.printStackTrace();
+                // TODO log it here
+            }
+        }
     }
 }
 

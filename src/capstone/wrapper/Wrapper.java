@@ -38,7 +38,7 @@ public abstract class Wrapper extends Thread
     /**
      * cleanup is called to remove all files or system resources the wrapper allocated.
      */
-    //public abstract void cleanup(); // TODO require a cleanup method
+    protected abstract void cleanup(); // TODO require a cleanup method
 
     /**
      * runProgram is called to run the program from the main entry point, until an error or a breakpoint.
@@ -345,7 +345,7 @@ public abstract class Wrapper extends Thread
             clearRequest();
         } 
         killDebugger();
-        // cleanup(); // TODO
+        cleanup();
     }
 }
 
