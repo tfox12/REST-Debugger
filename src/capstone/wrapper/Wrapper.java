@@ -25,10 +25,11 @@ public abstract class Wrapper extends Thread
     public abstract void runProgram() throws IOException;
 
     public abstract String getStdOut() throws IOException;
+    //public abstract String getStdErr() throws IOException; // TODO add this
     public abstract void provideInput(String input) throws IOException;
     public abstract StackFrame getLocalValues() throws IOException;
     public abstract List<StackFrame> getStack() throws IOException;
-    public abstract String evaluateExpression(String expression) throws IOException;
+    public abstract String evaluateExpression(String expression) throws IOException; // TODO comment this -- will return null if there is an error
 
     public abstract void stepIn() throws IOException;
     public abstract void stepOut() throws IOException;
@@ -42,7 +43,7 @@ public abstract class Wrapper extends Thread
     {
         synchronized (requestLock)
         {
-            if (request != null)
+            if (this.request == null && request != null)
             {
                 this.request = request;
                 System.out.println("[gdb] Notifying to wake up the wrapper!");

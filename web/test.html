@@ -78,7 +78,7 @@ int main()
                 var content = codeEditor.getValue()
                 submitCommand("prepare", "1", "1", content, function(data) {
                     highlightErrors(data);
-                    getLineNumber();
+                    //getLineNumber();
                 });
             }
 
@@ -128,7 +128,7 @@ int main()
 
             function submitCommand(call, usrid, dbgid, data, callback)
             {
-                $.post("http://capstone-s13.cs.kent.edu:6789",
+                $.post("http://localhost:6789",
                     {
                         "call"  : call,
                         "usrid" : usrid,
