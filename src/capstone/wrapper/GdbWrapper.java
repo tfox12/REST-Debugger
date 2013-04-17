@@ -29,7 +29,8 @@ public class GdbWrapper extends Wrapper
     private PrintStream toProgram;
     private BufferedInputStream fromProgram;
 
-    public List<ProgramError> prepare(String programText)
+    @Override
+    protected List<ProgramError> prepare(String programText)
     throws IOException, InterruptedException
     {
         FileWriter fileOut = new FileWriter(programTextFilename);
@@ -83,7 +84,8 @@ public class GdbWrapper extends Wrapper
         return new ArrayList<ProgramError>();
     }
 
-    public void killDebugger()
+    @Override
+    protected void killDebugger()
     {
         if (debuggerProcess != null)
         {
@@ -91,14 +93,16 @@ public class GdbWrapper extends Wrapper
         }
     }
 
-    public void runProgram()
+    @Override
+    protected void runProgram()
     throws IOException
     {
         write("c");
         String output = readUntilPrompt();
     }
 
-    public String getStdOut()
+    @Override
+    protected String getStdOut()
     throws IOException
     {
         int numAvailable = fromProgram.available();
@@ -115,25 +119,29 @@ public class GdbWrapper extends Wrapper
         }
     }
 
+    @Override
     public void provideInput(String input)
     {
         toProgram.print(input);
         toProgram.flush();
     }
 
-    public StackFrame getLocalValues()
+    @Override
+    protected StackFrame getLocalValues()
     {
         // TODO implement this
         return null;
     }
 
-    public List<StackFrame> getStack()
+    @Override
+    protected List<StackFrame> getStack()
     {
         // TODO implement this
         return null;
     }
 
-    public String evaluateExpression(String expression)
+    @Override
+    protected String evaluateExpression(String expression)
     throws IOException
     {
         write("print " + expression);
@@ -150,14 +158,16 @@ public class GdbWrapper extends Wrapper
         }
     }
 
-    public void stepIn()
+    @Override
+    protected void stepIn()
     throws IOException
     {
         write("step");
         readUntilPrompt();
     }
 
-    public void stepOut()
+    @Override
+    protected void stepOut()
     throws IOException
     {
         write("finish");
@@ -168,21 +178,24 @@ public class GdbWrapper extends Wrapper
         }
     }
 
-    public void stepOver()
+    @Override
+    protected void stepOver()
     throws IOException
     {
         write("next");
         readUntilPrompt();
     }
 
-    public void addBreakpoint(int lineNumber)
+    @Override
+    protected void addBreakpoint(int lineNumber)
     throws IOException
     {
         write("break " + lineNumber);
         readUntilPrompt();
     }
 
-    public int getLineNumber()
+    @Override
+    protected int getLineNumber()
     throws IOException
     {
         int lineNumber = 0;
@@ -196,7 +209,7 @@ public class GdbWrapper extends Wrapper
         return outputScanner.nextInt();
     }
 
-    private void createGdbProcess()
+    protected void createGdbProcess()
     throws IOException
     {
         //String command = "gdb -q " + programBinaryFilename;
@@ -207,14 +220,14 @@ public class GdbWrapper extends Wrapper
         toGdb = new PrintStream(debuggerProcess.getOutputStream());
     }
 
-    private void write(String command)
+    protected void write(String command)
     throws IOException
     {
         toGdb.println(command);
         toGdb.flush();
     }
 
-    private String readUntilPrompt()
+    protected String readUntilPrompt()
     throws IOException
     {
         fromGdb.useDelimiter("\\(gdb\\) ");
