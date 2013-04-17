@@ -32,9 +32,9 @@ public class Daemon
     }
 
     public static void main(String... args)
-    throws Exception // FIXME
+    throws InterruptedException
     {
-        new Daemon(6789);
+        new Daemon(6789); // FIXME change to command line arg
     }
 }
 

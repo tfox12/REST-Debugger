@@ -11,16 +11,19 @@ public abstract class Wrapper extends Thread
 {
     private Object requestLock;
     private DebuggerRequest request;
+    private Object activeLock;
     private boolean active;
 
     public Wrapper()
     {
         requestLock = new Object();
+        request = null;
+        activeLock = new Object();
         active = false;
     }
 
     public abstract List<ProgramError> prepare(String programText) throws IOException, InterruptedException;
-    public abstract void killDebugger();
+    public abstract void killDebugger(); // must be able to be run many times
     //public abstract void cleanup(); // TODO require a cleanup method
     public abstract void runProgram() throws IOException;
 
@@ -80,22 +83,35 @@ public abstract class Wrapper extends Thread
         }
     }
 
+    // TODO comment this: if you call shutdown you must interrupt this thread, too
     public void shutdown()
     {
-        active = false;
+        setActive(false);
+        this.interrupt();
     }
 
     public boolean isActive()
     {
-        return active;
+        synchronized (activeLock)
+        {
+            return active;
+        }
+    }
+
+    private void setActive(boolean active)
+    {
+        synchronized (activeLock)
+        {
+            this.active = active;
+        }
     }
 
     @Override
     public void run()
     {
         System.out.println("[gdb] Starting the thread!");
-        active = true;
-        activeLoop: while (active)
+        setActive(true);
+        activeLoop: while (isActive())
         {
             System.out.println("[gdb] entering request lock block");
             synchronized (requestLock)
@@ -111,7 +127,7 @@ public abstract class Wrapper extends Thread
                     catch (InterruptedException exception)
                     {
                         System.out.println("[gdb] exception!");
-                        if (active)
+                        if (isActive())
                         {
                             continue;
                         }
@@ -198,7 +214,7 @@ public abstract class Wrapper extends Thread
                             break;
 
                         case KILLDEBUGGER:
-                            active = false;
+                            setActive(false);
                             killDebugger();
                             break;
 
@@ -209,18 +225,20 @@ public abstract class Wrapper extends Thread
                 }
                 catch (IOException exception)
                 {
-                    active = false;
+                    setActive(false);
                     killDebugger();
                 }
                 catch (InterruptedException exception)
                 {
-                    active = false;
+                    setActive(false);
                     killDebugger();
                 }
             }
 
             clearRequest();
         } 
+        killDebugger();
+        // cleanup(); // TODO
     }
 }
 
