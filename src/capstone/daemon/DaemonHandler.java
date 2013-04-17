@@ -21,6 +21,7 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
      * Format for the key is: "userId_debuggerId"
      */
     static HashMap<String,Wrapper> wrapperMap = new HashMap<String,Wrapper>();
+    static HashMap<String,String> sessionKeyMap = new HashMap<String,String>();
 
     @Override
     public void endMessageReceived(ChannelHandlerContext ctx) throws Exception
@@ -60,12 +61,13 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             DebuggerRequest debuggerRequest = new DebuggerRequest(command, data);
 
             // TODO determine the cases when we want to create a new one
-            Wrapper wrapper = wrapperMap.get(wrapperKey);
+            Wrapper wrapper = wrapperMap.get(wrapperKey); // FIXME synchronize on the session key
             if (wrapper == null)
             {
+                // TODO switch off of language here
                 wrapper = new GdbWrapper(Integer.parseInt(userId), Integer.parseInt(debuggerId));
                 wrapper.start();
-                wrapperMap.put(wrapperKey, wrapper);
+                wrapperMap.put(wrapperKey, wrapper);  // FIXME data race here
             }
 
             System.out.println("[daemon] Submitting a request...");
@@ -104,7 +106,8 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
         }
     }
 
-    private HashMap<String, String> parseBody(String body) throws Exception
+    private HashMap<String, String> parseBody(String body)
+    throws Exception // FIXME change to right exception type
     {
         HashMap<String, String> args = new HashMap<String, String>();
         if(body.length() > 0)
