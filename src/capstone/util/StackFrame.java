@@ -8,7 +8,7 @@ public class StackFrame
     Integer depth;
     List<ProgramVariable> variables;
 
-    StackFrame(String frameName, Integer depth, List<ProgramVariable> variables)
+    public StackFrame(String frameName, Integer depth, List<ProgramVariable> variables)
     {
         this.frameName = frameName;
         this.depth = depth;
