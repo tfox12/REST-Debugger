@@ -313,6 +313,7 @@ public abstract class Wrapper extends Thread
                             break;
 
                         case GETLINENUMBER:
+                            System.out.println("[gdb] Fetching line number");
                             int lineNumber = getLineNumber();
                             jsonResult.put("linenumber", lineNumber);
                             request.result = String.valueOf(lineNumber);
