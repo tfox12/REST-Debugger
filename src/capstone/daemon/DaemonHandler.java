@@ -82,7 +82,7 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
                 synchronized (debuggerRequest.monitor)
                 {
                     wrapper.submitRequest(debuggerRequest);
-                    debuggerRequest.monitor.wait();
+                    debuggerRequest.monitor.wait(); // FIXME potential data race before this wait
                 }
                 System.out.println("[daemon] Woke up!");
             }

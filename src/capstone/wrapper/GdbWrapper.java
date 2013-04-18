@@ -119,7 +119,6 @@ public class GdbWrapper extends Wrapper
             }
 
             safeDelete(programTextFilename);
-            safeDelete(programTextFilename);
             safeDelete(programBinaryFilename);
             safeDelete(fromProgramFilename);
             safeDelete(toProgramFilename);
