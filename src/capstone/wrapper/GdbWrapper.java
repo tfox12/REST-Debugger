@@ -237,11 +237,21 @@ public class GdbWrapper extends Wrapper
     {
         int lineNumber = 0;
 
-        write("info line");
+        write("where");
         String output = readUntilPrompt();
-
         Scanner outputScanner = new Scanner(output);
+        outputScanner.useDelimiter(":");
+
+        if (!outputScanner.hasNext())
+            return 1;
+
         outputScanner.next();
+        outputScanner.useDelimiter(":|\\p{javaWhitespace}+");
+
+        if (!outputScanner.hasNextInt())
+        {
+            return 1;
+        }
 
         return outputScanner.nextInt();
     }

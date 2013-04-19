@@ -9,7 +9,7 @@ import java.io.*;
 
 public abstract class Wrapper extends Thread
 {
-    private Object requestLock;
+    public Object requestLock;
     private DebuggerRequest request;
     private Object activeLock;
     private boolean active;
