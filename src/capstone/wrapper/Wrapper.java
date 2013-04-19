@@ -9,7 +9,7 @@ import java.io.*;
 
 public abstract class Wrapper extends Thread
 {
-    public Object requestLock;
+    private Object requestLock;
     private DebuggerRequest request;
     private Object activeLock;
     private boolean active;
@@ -331,12 +331,16 @@ public abstract class Wrapper extends Thread
                 }
                 catch (IOException exception)
                 {
+                    System.out.println("[gdb] Error, shutting down gdb!");
+                    exception.printStackTrace();
                     request.result = null;
                     setActive(false);
                     killDebugger();
                 }
                 catch (InterruptedException exception)
                 {
+                    System.out.println("[gdb] Error, shutting down gdb!");
+                    exception.printStackTrace();
                     request.result = null;
                     setActive(false);
                     killDebugger();
