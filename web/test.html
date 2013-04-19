@@ -32,6 +32,7 @@ int main() {
 }
 </textarea></div>
         <div><textarea id="input"></textarea></div>
+        <div><textarea id="output"></textarea></div>
         <button onClick="compile()">compileProgram</button>
         <button onClick="run()">run</button>
         <button onClick="giveInput()">giveInput</button>
@@ -49,6 +50,7 @@ int main() {
             {
                 submitCommand("foobar", "", showresponse);
             }
+
             var codeEditor = CodeMirror.fromTextArea(document.getElementById("source"), {
                 mode: "text/x-csrc",
                 lineNumbers: true,
@@ -56,16 +58,20 @@ int main() {
                 tabMode: "shift",
                 matchBrackets:true,
             });
-            codeEditor.setSize("80em", "20em");
+            codeEditor.setSize("60em", "20em");
 
             var inputEditor = CodeMirror.fromTextArea(document.getElementById("input"), {
                 smartIndent: false
             });
-            inputEditor.setSize("80em", "5em");
+            inputEditor.setSize("60em", "3em");
+            intputEditor.setValue("");
 
-            //highlightErrorLine(2);
-            //highlightErrorLine(5);
-            //highlightCurrentLine(3);
+            var outputBox = CodeMirror.fromTextArea(document.getElementById("output"), {
+                smartIndent: false,
+                readOnly: true
+            });
+            outputBox.setSize("60em","3em");
+            outputBox.setValue("");
         </script>
     </body>
 </html>

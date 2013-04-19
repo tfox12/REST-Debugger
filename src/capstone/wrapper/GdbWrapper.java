@@ -167,7 +167,7 @@ public class GdbWrapper extends Wrapper
     protected StackFrame getLocalValues()
     throws IOException
     {
-        getStack()
+        getStack();
         return null;
     }
 
