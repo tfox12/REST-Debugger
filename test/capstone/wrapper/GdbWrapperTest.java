@@ -87,6 +87,8 @@ public class GdbWrapperTest
                           + "    int result = factorial(k);\n"
                           + "    cout << result << endl;\n"
                           + "}\n";
+
+        System.out.println(functionalProgram);
     }
 
     @Test

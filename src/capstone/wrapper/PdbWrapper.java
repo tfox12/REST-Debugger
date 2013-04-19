@@ -138,7 +138,7 @@ public class PdbWrapper extends Wrapper
         //TODO: Make sure the expression is valid
         if (false) 
         {
-            return "Error: Expression not valid";
+            return null;
         }
         else 
         {

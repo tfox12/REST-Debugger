@@ -42,6 +42,8 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
         { 
             HashMap<String, String> args = parseBody(body);
 
+            boolean hadError = false; // TODO remove this, just here for testing
+
             // TODO add session tokens
             // TODO add specifier of C++ vs Python
 
@@ -80,6 +82,12 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
                 wrapper.provideInput(debuggerRequest.data);
                 debuggerRequest.result = "";
             }
+            else if (debuggerRequest.command == DebuggerCommand.UNKNOWN)
+            {
+                // TODO error handling
+                hadError = true;
+                debuggerRequest.result = "";
+            }
             else
             {
                 System.out.println("[daemon] Waiting on the monitor...");
@@ -98,6 +106,9 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             response.headers().set(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
             response.headers().set(CONTENT_LENGTH, debuggerRequest.result.length());
             response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
+
+            if (hadError)
+                response.setStatus(BAD_REQUEST);
 
             ctx.nextOutboundMessageBuffer().add(response);
             ctx.flush().addListener(ChannelFutureListener.CLOSE);

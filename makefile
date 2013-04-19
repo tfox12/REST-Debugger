@@ -9,5 +9,6 @@ dist :
 	ant jar
 
 run :
-	ant jar && java -jar dist/daemon.jar
+	ant jar
+	java -Xmx2048m -jar dist/daemon.jar
 
