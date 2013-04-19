@@ -165,15 +165,35 @@ public class GdbWrapper extends Wrapper
 
     @Override
     protected StackFrame getLocalValues()
+    throws IOException
     {
-        // TODO implement this
+        getStack()
         return null;
     }
 
     @Override
     protected List<StackFrame> getStack()
+    throws IOException
     {
-        // TODO implement this
+        /*List<StackFrame> retVal;
+        
+        write("bt");
+        String stackNames = readUntilPrompt();
+        String[] btLines = stackNames.split("\r\n|\r|\n");
+        
+        for (int depth = 0; depth < btLines.length; depth++)
+        {
+            write("frame" + depth);
+            String stackFrame = readUntilPrompt();
+            int nameEnd = stackFrame.indexOf(" (");
+            int nameStart = stackFrame.lastIndexOf(" ", nameEnd);
+            
+            String stackName = stackFrame.substring(nameStart, nameEnd);
+            String[] splitVariables = stackFrame.split(btLines[depth]);
+            //splitVariables[1]/
+            
+        }*/
+        
         return null;
     }
 
