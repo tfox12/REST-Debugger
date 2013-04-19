@@ -61,13 +61,17 @@ public class DaemonHandler extends ChannelInboundMessageHandlerAdapter<DefaultFu
             DebuggerRequest debuggerRequest = new DebuggerRequest(command, data);
 
             // TODO determine the cases when we want to create a new one
-            Wrapper wrapper = wrapperMap.get(wrapperKey); // FIXME synchronize on the session key
-            if (wrapper == null)
+            Wrapper wrapper;
+            synchronized (wrapperMap)
             {
-                // TODO switch off of language here
-                wrapper = new GdbWrapper(Integer.parseInt(userId), Integer.parseInt(debuggerId));
-                wrapper.start();
-                wrapperMap.put(wrapperKey, wrapper);  // FIXME data race here
+                wrapper = wrapperMap.get(wrapperKey); // FIXME synchronize on the session key
+                if (wrapper == null)
+                {
+                    // TODO switch off of language here
+                    wrapper = new GdbWrapper(Integer.parseInt(userId), Integer.parseInt(debuggerId));
+                    wrapper.start();
+                    wrapperMap.put(wrapperKey, wrapper);
+                }
             }
 
             System.out.println("[daemon] Submitting a request...");

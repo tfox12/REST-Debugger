@@ -214,143 +214,149 @@ public abstract class Wrapper extends Thread
     @Override
     public void run()
     {
-        System.out.println("[gdb] Starting the thread!");
-        setActive(true);
-        activeLoop: while (isActive())
+        try
         {
-            System.out.println("[gdb] entering request lock block");
-            synchronized (requestLock)
+            System.out.println("[gdb] Starting the thread!");
+            setActive(true);
+            activeLoop: while (isActive())
             {
-                while (request == null)
+                System.out.println("[gdb] entering request lock block");
+                synchronized (requestLock)
                 {
+                    while (request == null)
+                    {
+                        try
+                        {
+                            System.out.println("[gdb] waiting for request lock");
+                            requestLock.wait();
+                            System.out.println("[gdb] woken up");
+                        }
+                        catch (InterruptedException exception)
+                        {
+                            System.out.println("[gdb] exception!");
+                            if (isActive())
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                // To whoever reads this: I'm sorry.
+                                // I decided to use a label and I
+                                // should be punished.  --ntietz
+                                break activeLoop;
+                            }
+                        }
+                    }
+
                     try
                     {
-                        System.out.println("[gdb] waiting for request lock");
-                        requestLock.wait();
-                        System.out.println("[gdb] woken up");
+                        JSONObject jsonResult = new JSONObject();
+                        request.result = "";
+                        switch (request.command)
+                        {
+                            case PREPARE:
+                                System.out.println("[gdb] Handling a prepare command!");
+                                List<ProgramError> errors = prepare(request.data);
+                                JSONArray jsonErrorList = new JSONArray();
+                                for (ProgramError each : errors)
+                                {
+                                    JSONObject jsonEach = new JSONObject();
+                                    jsonEach.put("linenumber", "" + each.lineNumber);
+                                    jsonEach.put("errortext", each.errorText);
+                                    jsonErrorList.add(jsonEach);
+                                }
+                                jsonResult.put("errors", jsonErrorList);
+                                System.out.println("[gdb] Results: " + request.result);
+                                break;
+
+                            case RUN:
+                                runProgram();
+                                break;
+
+                            case STEPIN:
+                                stepIn();
+                                break;
+
+                            case STEPOUT:
+                                stepOut();
+                                break;
+
+                            case STEPOVER:
+                                stepOver();
+                                break;
+
+                            case GETVALUES:
+                                // TODO this hasn't been implemented yet...
+                                request.result = "";
+                                break;
+
+                            case GETSTDOUT:
+                                String output = getStdOut();
+                                System.out.println("[gdb] Output was: " + output);
+                                jsonResult.put("stdout", output);
+                                break;
+
+                            case GETSTDERR:
+                                // TODO this hasn't been implemented yet...
+                                break;
+
+                            //note: GIVEINPUT case is not handled because
+                            // it should be handled by the daemon itself
+
+                            case ADDBREAKPOINT:
+                                try
+                                {
+                                    addBreakpoint(Integer.parseInt(request.data));
+                                }
+                                catch (NumberFormatException badFormatException)
+                                {
+                                    request.result = "Error: invalid line number";
+                                }
+                                break;
+
+                            case GETLINENUMBER:
+                                System.out.println("[gdb] Fetching line number");
+                                int lineNumber = getLineNumber();
+                                jsonResult.put("linenumber", lineNumber);
+                                request.result = String.valueOf(lineNumber);
+                                break;
+
+                            case KILLDEBUGGER:
+                                setActive(false);
+                                killDebugger();
+                                break;
+
+                            case UNKNOWN:
+                                break;
+                        }
+                        request.result = jsonResult.toString();
+                    }
+                    catch (IOException exception)
+                    {
+                        System.out.println("[gdb] Error, shutting down gdb!");
+                        exception.printStackTrace();
+                        request.result = null;
+                        setActive(false);
+                        killDebugger();
                     }
                     catch (InterruptedException exception)
                     {
-                        System.out.println("[gdb] exception!");
-                        if (isActive())
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            // To whoever reads this: I'm sorry.
-                            // I decided to use a label and I
-                            // should be punished.  --ntietz
-                            break activeLoop;
-                        }
+                        System.out.println("[gdb] Error, shutting down gdb!");
+                        exception.printStackTrace();
+                        request.result = null;
+                        setActive(false);
+                        killDebugger();
                     }
                 }
 
-                try
-                {
-                    JSONObject jsonResult = new JSONObject();
-                    request.result = "";
-                    switch (request.command)
-                    {
-                        case PREPARE:
-                            System.out.println("[gdb] Handling a prepare command!");
-                            List<ProgramError> errors = prepare(request.data);
-                            JSONArray jsonErrorList = new JSONArray();
-                            for (ProgramError each : errors)
-                            {
-                                JSONObject jsonEach = new JSONObject();
-                                jsonEach.put("linenumber", "" + each.lineNumber);
-                                jsonEach.put("errortext", each.errorText);
-                                jsonErrorList.add(jsonEach);
-                            }
-                            jsonResult.put("errors", jsonErrorList);
-                            System.out.println("[gdb] Results: " + request.result);
-                            break;
-
-                        case RUN:
-                            runProgram();
-                            break;
-
-                        case STEPIN:
-                            stepIn();
-                            break;
-
-                        case STEPOUT:
-                            stepOut();
-                            break;
-
-                        case STEPOVER:
-                            stepOver();
-                            break;
-
-                        case GETVALUES:
-                            // TODO this hasn't been implemented yet...
-                            request.result = "";
-                            break;
-
-                        case GETSTDOUT:
-                            String output = getStdOut();
-                            System.out.println("[gdb] Output was: " + output);
-                            jsonResult.put("stdout", output);
-                            break;
-
-                        case GETSTDERR:
-                            // TODO this hasn't been implemented yet...
-                            break;
-
-                        //note: GIVEINPUT case is not handled because
-                        // it should be handled by the daemon itself
-
-                        case ADDBREAKPOINT:
-                            try
-                            {
-                                addBreakpoint(Integer.parseInt(request.data));
-                            }
-                            catch (NumberFormatException badFormatException)
-                            {
-                                request.result = "Error: invalid line number";
-                            }
-                            break;
-
-                        case GETLINENUMBER:
-                            System.out.println("[gdb] Fetching line number");
-                            int lineNumber = getLineNumber();
-                            jsonResult.put("linenumber", lineNumber);
-                            request.result = String.valueOf(lineNumber);
-                            break;
-
-                        case KILLDEBUGGER:
-                            setActive(false);
-                            killDebugger();
-                            break;
-
-                        case UNKNOWN:
-                            break;
-                    }
-                    request.result = jsonResult.toString();
-                }
-                catch (IOException exception)
-                {
-                    System.out.println("[gdb] Error, shutting down gdb!");
-                    exception.printStackTrace();
-                    request.result = null;
-                    setActive(false);
-                    killDebugger();
-                }
-                catch (InterruptedException exception)
-                {
-                    System.out.println("[gdb] Error, shutting down gdb!");
-                    exception.printStackTrace();
-                    request.result = null;
-                    setActive(false);
-                    killDebugger();
-                }
-            }
-
-            clearRequest();
-        } 
-        killDebugger();
-        cleanup();
+                clearRequest();
+            } 
+        }
+        finally
+        {
+            killDebugger();
+            cleanup();
+        }
     }
 }
 
